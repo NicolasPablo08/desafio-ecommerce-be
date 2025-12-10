@@ -8,6 +8,9 @@ export async function POST(request: Request, { params }) {
 
     if (body.type === "payment") {
       const mpPayment = await getPaymentById(body.data.id);
+      console.log("mpPayment data:", mpPayment);
+      console.log("Payment status:", mpPayment.status);
+
       if (mpPayment.status === "approved") {
         console.log(`Payment ${mpPayment.id} approved`);
         const purchaseId = mpPayment.external_reference;
@@ -19,7 +22,7 @@ export async function POST(request: Request, { params }) {
 
     //   Se le responde a MP siempre (si o si) para que no vuelva a llamar a este endpoint
     //   con el mismo pago, aunque puede suceder
-    return Response.json({ received: true });
+    return new Response(JSON.stringify({ received: true }), { status: 200 });
   } catch (e) {
     return new Response(JSON.stringify({ message: e.message }), { status: 400 });
   }
