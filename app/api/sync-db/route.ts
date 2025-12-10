@@ -28,7 +28,7 @@ export async function POST(req: Request) {
           },
           (err) => {
             if (err) reject(err);
-            else resolve();
+            else resolve(void 0);
           }
         );
     });

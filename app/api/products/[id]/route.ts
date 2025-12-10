@@ -5,15 +5,17 @@ const paramsSchema = yup.object().shape({
   id: yup.string().required(),
 });
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-  const param = await params;
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+
   try {
-    await paramsSchema.validate(param);
+    await paramsSchema.validate(resolvedParams);
   } catch (e) {
     return new Response(JSON.stringify({ field: "params", message: e.message }), { status: 400 });
   }
   try {
-    const { id } = param;
+    const { id } = resolvedParams;
+
     const response = await getProductById(id);
     return new Response(JSON.stringify(response), { status: 200 });
   } catch (e) {

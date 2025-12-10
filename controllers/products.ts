@@ -12,8 +12,9 @@ export async function getProducts() {
         },
       ],
     });
+    const results = allProducts.results[0] as { hits: any[] };
 
-    return { results: allProducts.results[0].hits };
+    return { results: results.hits };
   } catch (e) {
     throw new Error(
       `Error fetching products from getProducts of products controller: ${e.message}`
@@ -39,7 +40,7 @@ export async function getProductById(id: string) {
 export async function getProductsBySearch(search: string, limit: number, offset: number) {
   //hacer busqueda en algolia
   try {
-    const { results } = await client.search({
+    const products = await client.search({
       requests: [
         {
           indexName,
@@ -49,9 +50,10 @@ export async function getProductsBySearch(search: string, limit: number, offset:
         },
       ],
     });
-    if (!results)
+    const results = products.results[0] as { hits: any[]; nbHits: number };
+    if (!products)
       throw new Error("Error searching products from getProductsBySearch of products controller");
-    return { results: results[0].hits, pagination: { offset, limit, total: results[0].nbHits } };
+    return { results: results.hits, pagination: { offset, limit, total: results.nbHits } };
   } catch (e) {
     throw new Error(
       `Error searching products from getProductsBySearch of products controller: ${e.message}`
