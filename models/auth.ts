@@ -23,11 +23,11 @@ export default class Auth extends Model<InferAttributes<Auth>, InferCreationAttr
     return newAuth;
   }
   static async updateAuth(code, codeExpires, email) {
-    console.log(code, codeExpires, email);
+    // console.log(code, codeExpires, email);
 
     // @ts-ignore
     const [affectedRows] = await Auth.update({ code, codeExpires }, { where: { email } });
-    console.log(affectedRows);
+    // console.log(affectedRows);
 
     return affectedRows > 0; // true si actualizó, false si no encontró email
   }

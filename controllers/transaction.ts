@@ -82,7 +82,7 @@ export async function confirmPurchase(purchaseId: string) {
       );
     //Agregar aqui un metodo para avisarle al vendedor que se produjo la venta
     //puede ser un email o un registro en Airtable.
-    console.log(`Purchase ${purchaseId} confirmed`);
+    // console.log(`Purchase ${purchaseId} confirmed`);
     return true;
   } catch (e) {
     console.error("Error confirming transaction:", e);
