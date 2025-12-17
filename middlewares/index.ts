@@ -8,20 +8,20 @@ export function authMiddleware(handler) {
     }
     const token = headerAuthorization.split(" ")[1];
     if (!token) {
-      return Response.json({ error: "No token provided" }, { status: 401 });
+      return new Response(JSON.stringify({ error: "No token provided" }), { status: 401 });
     }
 
     try {
       // Verifica si decodedToken es un objeto y tiene la propiedad userId
       const decodedToken = decodeToken(token);
       if (!decodedToken || typeof decodedToken !== "object" || !decodedToken.userId) {
-        return Response.json({ error: "Invalid token" }, { status: 401 });
+        return new Response(JSON.stringify({ error: "Invalid token" }), { status: 401 });
       }
 
       // Llamamos al handler
       return handler(request, decodedToken.userId as string);
     } catch (e) {
-      return Response.json({ error: "Invalid token" }, { status: 401 });
+      return new Response(JSON.stringify({ error: "Invalid token" }), { status: 401 });
     }
   };
 }

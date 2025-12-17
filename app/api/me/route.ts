@@ -5,7 +5,7 @@ import * as yup from "yup";
 const bodySchema = yup
   .object()
   .shape({
-    name: yup.string().required(),
+    name: yup.string(),
     lastName: yup.string(),
     email: yup.string().email(),
   })
