@@ -1,6 +1,14 @@
 import { getOrderById } from "controllers/transaction";
 import { authMiddleware } from "middlewares";
 import * as yup from "yup";
+import { corsHeaders, handleOptions } from "lib/cors";
+
+//para el manejo de cors y no tener problemas
+// cuando el back es llamado desde el front ubicado en otro servidor
+//agregar headers:corsHeaders en la respuestas al front
+export async function OPTIONS() {
+  return handleOptions();
+}
 
 //ver si es necesario el middleware para obtener una orden de un usuario
 //o no es necesaario el middleware y podemos obtener cualquier orden que este en la db
@@ -36,12 +44,18 @@ async function handler(req: Request, userId: string) {
   try {
     await querySchema.validate({ orderId });
   } catch (e) {
-    return new Response(JSON.stringify({ field: "query", message: e.message }), { status: 400 });
+    return new Response(JSON.stringify({ field: "query", message: e.message }), {
+      status: 400,
+      headers: corsHeaders,
+    });
   }
   try {
     const response = await getOrderById(orderId, userId);
-    return new Response(JSON.stringify(response), { status: 200 });
+    return new Response(JSON.stringify(response), { status: 200, headers: corsHeaders });
   } catch (e) {
-    return new Response(JSON.stringify({ message: e.message }), { status: 400 });
+    return new Response(JSON.stringify({ message: e.message }), {
+      status: 400,
+      headers: corsHeaders,
+    });
   }
 }
