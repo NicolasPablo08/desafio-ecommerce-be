@@ -29,9 +29,9 @@ export async function GET(req: Request) {
   try {
     const search = query.q;
     const maxLimit = 4;
-    const maxOffset = 10;
+    const maxOffset = 30;
     const { limit, offset } = getLimitAndOffsetFromReq(req, maxLimit, maxOffset);
-    if (!limit || !offset)
+    if (!limit || offset < 0)
       return new Response(JSON.stringify({ message: "Error: invalid limit or offset" }), {
         status: 400,
         headers: corsHeaders,
