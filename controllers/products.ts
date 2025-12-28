@@ -46,7 +46,7 @@ export async function getProductsBySearch(search: string, limit: number, offset:
           indexName,
           query: search,
           hitsPerPage: limit, //cantidad de resultados por pagina
-          page: offset > 1 ? Math.floor(offset / limit) : 0, //pagina actual, osea offset/limit redondeado hacia abajo
+          page: Math.floor(offset / limit), //pagina actual, osea offset/limit redondeado hacia abajo
         },
       ],
     });

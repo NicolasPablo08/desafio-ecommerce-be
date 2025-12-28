@@ -9,7 +9,9 @@ export function getLimitAndOffsetFromReq(req: Request, maxLimit: number, maxOffs
   //si el limit pasado por req es menor al maximo lo usamos, sino usamos el maximo
   const limit = queryLimitNum < maxLimit ? queryLimitNum : maxLimit;
   //si el offset pasado por req es menor al maximo lo usamos, sino usamos 0
-  const offset = queryOffsetNum < maxOffset ? queryOffsetNum : 0;
+  const offset = queryOffsetNum >= 0 && queryOffsetNum < maxOffset ? queryOffsetNum : 0; // Asegurarte de que sea >= 0
+
+  // const offset = queryOffsetNum < maxOffset ? queryOffsetNum : 0;
 
   return { limit, offset };
 }
