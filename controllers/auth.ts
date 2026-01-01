@@ -63,8 +63,11 @@ export async function getToken(email: string, code: number) {
 			throw new Error("Error: Auth not found from getToken of auth controller");
 		// 2) Validar código
 
-		if (code !== auth.code)
+		if (code !== auth.code) {
+			console.log("estamos saliendo porque no coinciden los codes");
+
 			throw new Error("Error: invalid code from getToken of auth controller");
+		}
 		const now = new Date();
 		const expiredDate = auth.codeExpires;
 		//da true si ya expiró por lo tanto false siginifica que no expiró
