@@ -55,11 +55,11 @@ export async function findOrCreateAuth(email: string) {
 export async function getToken(email: string, code: number) {
 	try {
 		const clearEmail = email.trim().toLowerCase();
-		console.log(clearEmail, code);
 
 		// 1) Buscar auth
 		const auth = await Auth.findAuthByEmail(clearEmail);
-		console.log(auth);
+		console.log("code", auth.code);
+		console.log("dataValue", auth.dataValue.code);
 
 		if (!auth)
 			throw new Error("Error: Auth not found from getToken of auth controller");
@@ -71,8 +71,12 @@ export async function getToken(email: string, code: number) {
 		//da true si ya expiró por lo tanto false siginifica que no expiró
 		const isCodeVigent = isAfter(expiredDate, now);
 		if (!isCodeVigent) throw new Error("Code expired");
+		console.log("isCodeVigent", isCodeVigent);
+
 		// 3) Generar token
 		const token = generateToken(auth.userId);
+		console.log("token", token);
+
 		if (!token)
 			throw new Error(
 				"Error generating token from getToken of auth controller"
