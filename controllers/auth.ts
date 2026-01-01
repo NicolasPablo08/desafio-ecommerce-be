@@ -63,11 +63,16 @@ export async function getToken(email: string, code: number) {
 			throw new Error("Error: Auth not found from getToken of auth controller");
 		// 2) Validar código
 
-		if (code !== Number(auth.code)) {
-			console.log("code", code, typeof code, "auth.code", auth.code),
-				typeof auth.code;
-
-			console.log("estamos saliendo porque no coinciden los codes");
+		if (Number(code) !== Number(auth.code)) {
+			console.log(
+				"code",
+				code,
+				typeof code,
+				"auth.code",
+				auth.code,
+				typeof auth.code
+			),
+				console.log("estamos saliendo porque no coinciden los codes");
 
 			throw new Error("Error: invalid code from getToken of auth controller");
 		}
