@@ -59,7 +59,7 @@ export async function getToken(email: string, code: number) {
 		// 1) Buscar auth
 		const auth = await Auth.findAuthByEmail(clearEmail);
 		console.log("code", auth.code);
-		console.log("dataValue", auth.dataValue.code);
+		console.log("dataValue", auth.dataValues.code);
 
 		if (!auth)
 			throw new Error("Error: Auth not found from getToken of auth controller");
