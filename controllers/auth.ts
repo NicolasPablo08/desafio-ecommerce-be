@@ -62,6 +62,8 @@ export async function getToken(email: string, code: number) {
 		if (!auth)
 			throw new Error("Error: Auth not found from getToken of auth controller");
 		// 2) Validar código
+		console.log("comparating codes", code, auth.code);
+
 		if (code !== auth.code)
 			throw new Error("Error: invalid code from getToken of auth controller");
 		const now = new Date();
