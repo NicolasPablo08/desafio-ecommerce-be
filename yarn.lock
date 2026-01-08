@@ -1179,6 +1179,11 @@ nanoid@^3.3.11, nanoid@^3.3.6:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.11.tgz#4f4f112cefbe303202f2199838128936266d185b"
   integrity sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==
 
+nanoid@^5.1.6:
+  version "5.1.6"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-5.1.6.tgz#30363f664797e7d40429f6c16946d6bd7a3f26c9"
+  integrity sha512-c7+7RQ+dMB5dPwwCp4ee1/iV/q2P6aK1mTZcfr1BTuVlyW9hJYiMPybJCcnBlQtuSmTIWNeazm/zqNoZSSElBg==
+
 next@^16.0.5:
   version "16.0.7"
   resolved "https://registry.yarnpkg.com/next/-/next-16.0.7.tgz#859045df71599a8883fc7049a65d6d468c56db08"
@@ -1344,11 +1349,6 @@ proxy-from-env@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-1.1.0.tgz#e102f16ca355424865755d2c9e8ea4f24d58c3e2"
   integrity sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==
-
-random-string-alphanumeric-generator@^0.12.2:
-  version "0.12.2"
-  resolved "https://registry.yarnpkg.com/random-string-alphanumeric-generator/-/random-string-alphanumeric-generator-0.12.2.tgz#573a975f0b2367cd63c0664badafe97b2e279d5b"
-  integrity sha512-Q4Vr3Apbz173bpQ0rGYiqf/DGqvfYl1sCFKwpdjmpbtH67jfEu1TkTwHH13UL8o8GfWYDj7PyIS0bYZnF//fuA==
 
 react-dom@^19.2.0:
   version "19.2.1"
