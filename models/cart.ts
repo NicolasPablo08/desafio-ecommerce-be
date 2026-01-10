@@ -4,6 +4,7 @@ import {
 	Model,
 	InferAttributes,
 	InferCreationAttributes,
+	Op,
 } from "sequelize";
 import { nanoid } from "nanoid";
 
@@ -18,26 +19,26 @@ export default class Cart extends Model<
 	declare quantity: number;
 	declare status: string;
 	declare orderId: string;
+	declare UrlPayment: string | null;
 
-	static async findAllByUserId(userId: string) {
+	static async createCartId(userId: string) {
 		// @ts-ignore
-		return (await Cart.findAll({ where: { userId } })) || [];
+		const productsNew = await Cart.findOne({
+			where: { status: "new", userId },
+		});
+		if (productsNew) {
+			return productsNew.orderId;
+		} else {
+			return nanoid(5);
+		}
 	}
-	static async findAllByUserAndCart(userId: string, orderId: string) {
-		// @ts-ignore
-		return (await Cart.findAll({ where: { userId, orderId } })) || [];
-	}
-
-	static async addProductToCart(
-		userId: string,
-		productId: string,
-		orderId: string
-	) {
+	static async addProductToCart(userId: string, productId: string) {
 		const id = nanoid(10);
 		try {
+			const orderId = await Cart.createCartId(userId);
 			// @ts-ignore
 			const productCart = await Cart.findOne({
-				where: { userId, productId, orderId },
+				where: { userId, productId, status: "new" },
 			});
 			if (!productCart) {
 				const newProductToCart = await Cart.create({
@@ -45,46 +46,73 @@ export default class Cart extends Model<
 					userId,
 					productId,
 					quantity: 1,
-					status: "pending",
+					status: "new",
 					orderId,
 				});
 			} else {
 				const updatedQuantity = await Cart.update(
 					{ quantity: productCart.quantity + 1 },
-					{ where: { userId, productId, orderId } }
+					{ where: { userId, productId, status: "new", orderId } }
 				);
 			}
-			return true;
+			return { message: "Product added to cart" };
 		} catch (e) {
 			throw new Error(
-				`Error add product to cart from addProductToCart of products controller: ${e.message}`
+				`Error add product to cart from addProductToCart of model Cart: ${e.message}`
 			);
 		}
 	}
-	static async deleteProductFromCart(
-		userId: string,
-		productId: string,
-		orderId: string
-	) {
+	static async deleteProductFromCart(userId: string, productId: string) {
 		try {
 			// @ts-ignore
 			const productCart = await Cart.findOne({
-				where: { userId, productId, orderId },
+				where: { userId, productId, status: "new" },
 			});
+			if (!productCart) {
+				return { message: "Product not found in cart" };
+			}
 			if (productCart.quantity === 1) {
 				await Cart.destroy({
-					where: { userId, productId, orderId },
+					where: { userId, productId, status: "new" },
 				});
 			} else {
 				await Cart.update(
 					{ quantity: productCart.quantity - 1 },
-					{ where: { userId, productId, orderId } }
+					{ where: { userId, productId, status: "new" } }
 				);
 			}
-			return true;
+			return { message: "Product deleted from cart" };
 		} catch (e) {
 			throw new Error(
-				`Error to delete product from cart from addProductToCart of products controller: ${e.message}`
+				`Error to delete product from cart from deleteProductFromCart of model Cart: ${e.message}`
+			);
+		}
+	}
+	static async getNewCart(userId: string) {
+		try {
+			const cart = await Cart.findAll({ where: { userId, status: "new" } });
+			return cart;
+		} catch (e) {
+			throw new Error(
+				`Error to obtain products from cart from getNewCart of model Cart: ${e.message}`
+			);
+		}
+	}
+	static async getOldsCarts(userId: string) {
+		try {
+			// @ts-ignore
+			const carts = await Cart.findAll({
+				where: {
+					userId,
+					status: {
+						[Op.or]: ["pending", "finished"], // Usando Op.or para busqueda de múltiples estados
+					},
+				},
+			});
+			return carts;
+		} catch (e) {
+			throw new Error(
+				`Error to obtain products from olds cart from getOldsCarts of model Cart: ${e.message}`
 			);
 		}
 	}
@@ -100,6 +128,7 @@ Cart.init(
 		quantity: DataTypes.INTEGER,
 		status: DataTypes.STRING,
 		orderId: DataTypes.STRING,
+		UrlPayment: DataTypes.STRING,
 	},
 	{ sequelize, modelName: "cart" }
 );

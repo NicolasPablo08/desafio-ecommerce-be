@@ -5,14 +5,14 @@ export default async function syncPostgresDataBase() {
 	try {
 		console.log("Iniciando la sincronización de la base de datos...");
 
-		await Auth.sync({ force: true });
-		console.log("Tabla Auth sincronizada.");
+		// await Auth.sync({ force: true });
+		// console.log("Tabla Auth sincronizada.");
 
-		await User.sync({ force: true });
-		console.log("Tabla User sincronizada.");
+		// await User.sync({ force: true });
+		// console.log("Tabla User sincronizada.");
 
-		await Transaction.sync({ force: true });
-		console.log("Tabla Transaction sincronizada.");
+		// await Transaction.sync({ force: true });
+		// console.log("Tabla Transaction sincronizada.");
 
 		await Cart.sync({ force: true });
 		console.log("Tabla Cart sincronizada.");
