@@ -112,6 +112,7 @@ export async function getProductsFromNewCart(userId: string) {
 			return {
 				...productAlgolia,
 				quantity: cartProduct ? cartProduct.quantity : 0, // Agregamos la cantidad
+				cartId: cartProduct ? cartProduct.orderId : 0, // Agregamos el orderId o cartId
 			};
 		});
 		return results;
