@@ -72,6 +72,9 @@ export async function getProductsBySearch(
 }
 
 //busqueda de productos en carros con status pending o finished
+//faltaria agregar campos para los productos finishied o pending,
+// como final price y title de los products, ya que al final de la
+// compra estos no deberia variar por cambios en la db
 export async function getProductsFromOldsCart(userId: string) {
 	try {
 		const products = await Cart.getOldsCarts(userId);
@@ -82,11 +85,36 @@ export async function getProductsFromOldsCart(userId: string) {
 		);
 	}
 }
-//busqueda de productos de un carro con status new
+//busqueda de productos de un carro con status new y luego
+// busqueda de los productos en algolia
 export async function getProductsFromNewCart(userId: string) {
 	try {
 		const products = await Cart.getNewCart(userId);
-		return products;
+		if (products.length === 0) return null;
+
+		//buscamos los productos en algolia
+		const productsFromAlgolia = await client.getObjects({
+			requests: products.map((p) => ({
+				indexName,
+				objectID: p.productId,
+			})),
+		});
+		if (!productsFromAlgolia)
+			throw new Error(
+				"Error searching products from getProductsBySearch of products controller"
+			);
+		const algoliaProducts = productsFromAlgolia.results as any[];
+		//agregamos a los resultados de algolia los quantitys
+		const results = algoliaProducts.map((productAlgolia) => {
+			const cartProduct = products.find(
+				(p) => p.productId === productAlgolia.objectID
+			);
+			return {
+				...productAlgolia,
+				quantity: cartProduct ? cartProduct.quantity : 0, // Agregamos la cantidad
+			};
+		});
+		return results;
 	} catch (e) {
 		throw new Error(
 			`Error to obtain products from getProductsFromNewCart of products controller: ${e.message}`
