@@ -7,6 +7,7 @@ import {
 	Op,
 } from "sequelize";
 import { nanoid } from "nanoid";
+import { get } from "http";
 
 //interface AuthAttributes y los declares solo son nesesarios para que ts no indique errores de tipos
 export default class Cart extends Model<
@@ -32,7 +33,11 @@ export default class Cart extends Model<
 			return nanoid(5);
 		}
 	}
-	static async addProductToCart(userId: string, productId: string) {
+	static async addProductToCart(
+		userId: string,
+		productId: string,
+		quantity: number
+	) {
 		const id = nanoid(10);
 		try {
 			const orderId = await Cart.createCartId(userId);
@@ -45,13 +50,13 @@ export default class Cart extends Model<
 					id,
 					userId,
 					productId,
-					quantity: 1,
+					quantity,
 					status: "new",
 					orderId,
 				});
 			} else {
 				const updatedQuantity = await Cart.update(
-					{ quantity: productCart.quantity + 1 },
+					{ quantity: productCart.quantity + quantity },
 					{ where: { userId, productId, status: "new", orderId } }
 				);
 			}
@@ -113,6 +118,26 @@ export default class Cart extends Model<
 		} catch (e) {
 			throw new Error(
 				`Error to obtain products from olds cart from getOldsCarts of model Cart: ${e.message}`
+			);
+		}
+	}
+	static async getCartById(orderId: string) {
+		try {
+			const response = await Cart.findAll({ where: { orderId } });
+			return response;
+		} catch (e) {
+			throw new Error(
+				`Error to obtain products from cart from getCartById of model Cart: ${e.message}`
+			);
+		}
+	}
+	static async updatedStatus(cartId: string, status: string) {
+		try {
+			await Cart.update({ status }, { where: { orderId: cartId } });
+			return { message: "Status updated" };
+		} catch (e) {
+			throw new Error(
+				`Error to update status from updatedStatus of model Cart: ${e.message}`
 			);
 		}
 	}

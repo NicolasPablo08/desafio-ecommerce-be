@@ -20,6 +20,7 @@ export const DELETE = authMiddleware(deleteProductFromCartHandler);
 
 const bodySchema = yup.object().shape({
 	productId: yup.string().required(),
+	quantity: yup.number(),
 });
 
 export async function addProductToCartHandler(req: Request, userId: string) {
@@ -35,7 +36,8 @@ export async function addProductToCartHandler(req: Request, userId: string) {
 	}
 	try {
 		const productId = body.productId as string;
-		const response = await addProductToCart(userId, productId);
+		const quantity = Number(body.quantity) || 1;
+		const response = await addProductToCart(userId, productId, quantity);
 		return new Response(JSON.stringify(response), {
 			status: 200,
 			headers: corsHeaders,

@@ -124,9 +124,13 @@ export async function getProductsFromNewCart(userId: string) {
 }
 
 //agregar productos al carro
-export async function addProductToCart(userId: string, productId: string) {
+export async function addProductToCart(
+	userId: string,
+	productId: string,
+	quantity: number
+) {
 	try {
-		const response = await Cart.addProductToCart(userId, productId);
+		const response = await Cart.addProductToCart(userId, productId, quantity);
 		return response;
 	} catch (e) {
 		throw new Error(
