@@ -127,10 +127,16 @@ export async function getProductsFromNewCart(userId: string) {
 export async function addProductToCart(
 	userId: string,
 	productId: string,
-	quantity: number
+	quantity: number,
+	productName: string
 ) {
 	try {
-		const response = await Cart.addProductToCart(userId, productId, quantity);
+		const response = await Cart.addProductToCart(
+			userId,
+			productId,
+			quantity,
+			productName
+		);
 		return response;
 	} catch (e) {
 		throw new Error(

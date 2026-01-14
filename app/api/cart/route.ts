@@ -37,7 +37,13 @@ export async function addProductToCartHandler(req: Request, userId: string) {
 	try {
 		const productId = body.productId as string;
 		const quantity = Number(body.quantity) || 1;
-		const response = await addProductToCart(userId, productId, quantity);
+		const productName = body.productName;
+		const response = await addProductToCart(
+			userId,
+			productId,
+			quantity,
+			productName
+		);
 		return new Response(JSON.stringify(response), {
 			status: 200,
 			headers: corsHeaders,

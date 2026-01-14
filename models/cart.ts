@@ -17,6 +17,7 @@ export default class Cart extends Model<
 	declare id: string;
 	declare userId: string;
 	declare productId: string;
+	declare productName: string;
 	declare quantity: number;
 	declare status: string;
 	declare orderId: string;
@@ -36,7 +37,8 @@ export default class Cart extends Model<
 	static async addProductToCart(
 		userId: string,
 		productId: string,
-		quantity: number
+		quantity: number,
+		productName: string
 	) {
 		const id = nanoid(10);
 		try {
@@ -50,6 +52,7 @@ export default class Cart extends Model<
 					id,
 					userId,
 					productId,
+					productName,
 					quantity,
 					status: "new",
 					orderId,
@@ -150,6 +153,7 @@ Cart.init(
 		},
 		userId: DataTypes.STRING,
 		productId: DataTypes.STRING,
+		productName: DataTypes.STRING,
 		quantity: DataTypes.INTEGER,
 		status: DataTypes.STRING,
 		orderId: DataTypes.STRING,
