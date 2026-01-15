@@ -1,5 +1,5 @@
 "use server";
-import { Transaction, User } from "models/model";
+import { User } from "models/model";
 import { getProductsFromNewCart } from "controllers/products";
 import { createSingleProductPreference } from "lib/mercadopago";
 import { sendConfirmedPaymentToEmail } from "lib/sendGrid";
@@ -78,34 +78,6 @@ export async function createOrder(cartId: string, userId: string) {
 	}
 }
 
-//ver de eliminar  o reformar ya que transactions no va mas, junto a endpoint
-export async function obtainOrders(userId: string) {
-	try {
-		const allMyOrders = await Transaction.findAllTransactions(userId);
-		return allMyOrders;
-	} catch (e) {
-		throw new Error(
-			`Error obtaining orders from obtainOrders of transaction controller:${e.message}`
-		);
-	}
-}
-
-//ver de eliminar  o reformar ya que transactions no va mas, junto a endpoint
-
-export async function getOrderById(orderId: string, userId: string) {
-	try {
-		const order = await Transaction.findTransactionByOrderIdAndUserId(
-			orderId,
-			userId
-		);
-		return order;
-	} catch (e) {
-		throw new Error(
-			`Error obtaining order from getOrderById of transaction controller: ${e.message}`
-		);
-	}
-}
-
 //confirmamos la transaction y la pasamos a approbed
 export async function confirmPurchase(orderId: string, status: string) {
 	// confirmamos la compra en la DB cambiando el status
@@ -169,6 +141,17 @@ export async function confirmPurchase(orderId: string, status: string) {
 	}
 }
 
+//obtener cart por id
+export async function getOrderById(orderId: string) {
+	try {
+		const order = await Cart.getCartById(orderId);
+		return order;
+	} catch (e) {
+		throw new Error(
+			`Error obtaining order from getOrderById of transaction controller: ${e.message}`
+		);
+	}
+}
 //////////////////////////////////////////////////////////////////////////////
 // export async function getConfirmedPayments(): Promise<Purchase[]> {
 //   try {
