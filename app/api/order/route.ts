@@ -33,7 +33,7 @@ async function generateNewOrderByUser(req: Request, userId: string) {
 	}
 	try {
 		const response = await createOrder(cartId, userId);
-		return new Response(JSON.stringify(response.init_point), {
+		return new Response(JSON.stringify(response), {
 			status: 200,
 			headers: corsHeaders,
 		});
