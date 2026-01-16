@@ -15,6 +15,13 @@ async function updateStockInAlgoliaAndAirtable(
 	productId: string,
 	quantity: number
 ) {
+	console.log(
+		"updateStockInAlgoliaAndAirtable",
+		productName,
+		productId,
+		quantity
+	);
+
 	try {
 		const productAlgolia = await client.getObject({
 			indexName,
@@ -124,6 +131,8 @@ export async function confirmPurchase(orderId: string, status: string) {
 				},
 			}))
 		);
+		console.log("createNew sale, tabla sales de airtable", createNewSale);
+
 		// actualizar el quantity de los productos en algolia y airtable
 		const updatedStock = await Promise.all(
 			cart.map((p) => {
@@ -134,6 +143,11 @@ export async function confirmPurchase(orderId: string, status: string) {
 				);
 			})
 		);
+		console.log(
+			"updateStock, actualiza las tablas de algolia y airtable",
+			updatedStock
+		);
+
 		return true;
 	} catch (e) {
 		console.error("Error confirming transaction:", e);
