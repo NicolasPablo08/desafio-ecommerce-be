@@ -15,13 +15,6 @@ async function updateStockInAlgoliaAndAirtable(
 	productId: string,
 	quantity: number
 ) {
-	console.log(
-		"updateStockInAlgoliaAndAirtable",
-		productName,
-		productId,
-		quantity
-	);
-
 	try {
 		const productAlgolia = await client.getObject({
 			indexName,
@@ -46,11 +39,12 @@ async function updateStockInAlgoliaAndAirtable(
 				filterByFormula: `{name} = "${productName}"`,
 			})
 			.firstPage();
-		const updatedAirtable = await airtableBase("Products").update([
+
+		const updatedAirtable = await airtableBase("products").update([
 			{
 				id: records[0].id,
 				fields: {
-					Stock: Number(productAlgolia.stock) - quantity,
+					stock: Number(productAlgolia.stock) - quantity,
 				},
 			},
 		]);
@@ -108,6 +102,7 @@ export async function confirmPurchase(orderId: string, status: string) {
 			throw new Error(
 				"Error: could not search user from confirmPurchase of transaction controller"
 			);
+
 		//enviamos el email al usuario confirmando el pago
 		const sendEmailWithConfirmedPayment = sendConfirmedPaymentToEmail(
 			user.email,
@@ -131,7 +126,6 @@ export async function confirmPurchase(orderId: string, status: string) {
 				},
 			}))
 		);
-		console.log("createNew sale, tabla sales de airtable", createNewSale);
 
 		// actualizar el quantity de los productos en algolia y airtable
 		const updatedStock = await Promise.all(
@@ -143,11 +137,6 @@ export async function confirmPurchase(orderId: string, status: string) {
 				);
 			})
 		);
-		console.log(
-			"updateStock, actualiza las tablas de algolia y airtable",
-			updatedStock
-		);
-
 		return true;
 	} catch (e) {
 		console.error("Error confirming transaction:", e);
