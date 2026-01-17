@@ -4,7 +4,7 @@ import { confirmPurchase } from "controllers/transaction";
 export async function POST(request: Request, { params }) {
   try {
     const body: WebhokPayload = await request.json();
-    console.log("Webhook received", body);
+    // console.log("Webhook received", body);
 
     if (body.type === "payment") {
       const mpPayment = await getPaymentById(body.data.id);
@@ -12,6 +12,7 @@ export async function POST(request: Request, { params }) {
         // console.log(`Payment ${mpPayment.id} approved`);
         const purchaseId = mpPayment.external_reference;
         // console.log("purchaseId", purchaseId);
+        console.log("mpPayment", mpPayment.transaction_amount);
 
         await confirmPurchase(purchaseId, mpPayment.status);
       }
