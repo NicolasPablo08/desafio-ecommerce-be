@@ -11,149 +11,138 @@ const indexName = "products"; // nombre del indice en algolia
 
 // funcion para actualizar el quantity de los productos en algolia y airtable
 async function updateStockInAlgoliaAndAirtable(
-	productName: string,
-	productId: string,
-	quantity: number
+  productName: string,
+  productId: string,
+  quantity: number
 ) {
-	try {
-		const productAlgolia = await client.getObject({
-			indexName,
-			objectID: productId,
-		});
-		if (!productAlgolia)
-			throw new Error(
-				"Error: product not found from updateStockInAlgoliaAndAirtable of transaction controller"
-			);
-		const updatedAlgolia = await client.partialUpdateObject({
-			indexName,
-			objectID: productId,
-			attributesToUpdate: {
-				stock: {
-					_operation: "Decrement",
-					value: quantity,
-				},
-			},
-		});
-		const records = await airtableBase("products")
-			.select({
-				filterByFormula: `{name} = "${productName}"`,
-			})
-			.firstPage();
+  try {
+    const productAlgolia = await client.getObject({
+      indexName,
+      objectID: productId,
+    });
+    if (!productAlgolia)
+      throw new Error(
+        "Error: product not found from updateStockInAlgoliaAndAirtable of transaction controller"
+      );
+    const updatedAlgolia = await client.partialUpdateObject({
+      indexName,
+      objectID: productId,
+      attributesToUpdate: {
+        stock: {
+          _operation: "Decrement",
+          value: quantity,
+        },
+      },
+    });
+    const records = await airtableBase("products")
+      .select({
+        filterByFormula: `{name} = "${productName}"`,
+      })
+      .firstPage();
 
-		const updatedAirtable = await airtableBase("products").update([
-			{
-				id: records[0].id,
-				fields: {
-					stock: Number(productAlgolia.stock) - quantity,
-				},
-			},
-		]);
-	} catch (e) {
-		throw new Error(
-			`Error to update stock in algolia and airtable from updateStockInAlgoliaAndAirtable of transaction controller: ${e.message}`
-		);
-	}
+    const updatedAirtable = await airtableBase("products").update([
+      {
+        id: records[0].id,
+        fields: {
+          stock: Number(productAlgolia.stock) - quantity,
+        },
+      },
+    ]);
+  } catch (e) {
+    throw new Error(
+      `Error to update stock in algolia and airtable from updateStockInAlgoliaAndAirtable of transaction controller: ${e.message}`
+    );
+  }
 }
 
 export async function createOrder(cartId: string, userId: string) {
-	try {
-		const searchCart = await Cart.getCartById(cartId);
-		if (!searchCart)
-			throw new Error(
-				"Error: cart not found from createOrder of transaction controller"
-			);
-		const products = await getProductsFromNewCart(userId);
-		if (!products)
-			throw new Error(
-				"Error: products not found from createOrder of transaction controller"
-			);
-		const newPref = await createSingleProductPreference({
-			products,
-			transactionId: cartId,
-		});
-		return newPref;
-	} catch (e) {
-		throw new Error(
-			`Error creating order from createOrder of transaction controller: ${e.message}`
-		);
-	}
+  try {
+    const searchCart = await Cart.getCartById(cartId);
+    if (!searchCart)
+      throw new Error("Error: cart not found from createOrder of transaction controller");
+    const products = await getProductsFromNewCart(userId);
+    if (!products)
+      throw new Error("Error: products not found from createOrder of transaction controller");
+    const newPref = await createSingleProductPreference({
+      products,
+      transactionId: cartId,
+    });
+    return newPref;
+  } catch (e) {
+    throw new Error(
+      `Error creating order from createOrder of transaction controller: ${e.message}`
+    );
+  }
 }
 
 //confirmamos la transaction y la pasamos a approbed
-export async function confirmPurchase(orderId: string, status: string) {
-	// confirmamos la compra en la DB cambiando el status
-	try {
-		const confirmTransaction = await Cart.updatedStatus(orderId, status);
-		if (!confirmTransaction)
-			throw new Error(
-				"Error: could not confirm transaction from confirmPurchase of transaction controller"
-			);
+export async function confirmPurchase(orderId: string, status: string, amount: number) {
+  // confirmamos la compra en la DB cambiando el status
+  try {
+    const confirmTransaction = await Cart.updatedStatus(orderId, status, amount);
+    if (!confirmTransaction)
+      throw new Error(
+        "Error: could not confirm transaction from confirmPurchase of transaction controller"
+      );
 
-		//obtenemos los productos de la compra para luego actualizar las db algolia y airtable
-		const cart = await Cart.getCartById(orderId);
-		if (!cart)
-			throw new Error(
-				"Error: could not search transaction from confirmPurchase of transaction controller"
-			);
+    //obtenemos los productos de la compra para luego actualizar las db algolia y airtable
+    const cart = await Cart.getCartById(orderId);
+    if (!cart)
+      throw new Error(
+        "Error: could not search transaction from confirmPurchase of transaction controller"
+      );
 
-		//obtenemos el usuario para enviarle un email
-		const user = await User.findUserById(cart[0].userId);
-		if (!user)
-			throw new Error(
-				"Error: could not search user from confirmPurchase of transaction controller"
-			);
+    //obtenemos el usuario para enviarle un email
+    const user = await User.findUserById(cart[0].userId);
+    if (!user)
+      throw new Error(
+        "Error: could not search user from confirmPurchase of transaction controller"
+      );
 
-		//enviamos el email al usuario confirmando el pago
-		const sendEmailWithConfirmedPayment = sendConfirmedPaymentToEmail(
-			user.email,
-			orderId
-		);
-		if (!sendEmailWithConfirmedPayment)
-			throw new Error(
-				"Error: could not sendEmailWithConfirmedPayment from confirmPurchase of transaction controller"
-			);
-		//avisarle al vendedor que se produjo la venta en una nuevatabla de airtable
-		const createNewSale = await airtableBase("sales").create(
-			cart.map((p) => ({
-				fields: {
-					nombre: user.name,
-					apellido: user.lastName,
-					direccion: user.address,
-					productId: p.productId,
-					cantidad: p.quantity,
-					orderId: p.orderId,
-					status: "new",
-				},
-			}))
-		);
+    //enviamos el email al usuario confirmando el pago
+    const sendEmailWithConfirmedPayment = sendConfirmedPaymentToEmail(user.email, orderId);
+    if (!sendEmailWithConfirmedPayment)
+      throw new Error(
+        "Error: could not sendEmailWithConfirmedPayment from confirmPurchase of transaction controller"
+      );
+    //avisarle al vendedor que se produjo la venta en una nuevatabla de airtable
+    const createNewSale = await airtableBase("sales").create(
+      cart.map((p) => ({
+        fields: {
+          nombre: user.name,
+          apellido: user.lastName,
+          direccion: user.address,
+          productId: p.productId,
+          cantidad: p.quantity,
+          orderId: p.orderId,
+          status: "new",
+        },
+      }))
+    );
 
-		// actualizar el quantity de los productos en algolia y airtable
-		const updatedStock = await Promise.all(
-			cart.map((p) => {
-				return updateStockInAlgoliaAndAirtable(
-					p.productName,
-					p.productId,
-					p.quantity
-				);
-			})
-		);
-		return true;
-	} catch (e) {
-		console.error("Error confirming transaction:", e);
-		throw new Error(`Could not confirm transaction: ${e.message}`);
-	}
+    // actualizar el quantity de los productos en algolia y airtable
+    const updatedStock = await Promise.all(
+      cart.map((p) => {
+        return updateStockInAlgoliaAndAirtable(p.productName, p.productId, p.quantity);
+      })
+    );
+    return true;
+  } catch (e) {
+    console.error("Error confirming transaction:", e);
+    throw new Error(`Could not confirm transaction: ${e.message}`);
+  }
 }
 
 //obtener cart por id
 export async function getOrderById(orderId: string) {
-	try {
-		const order = await Cart.getCartById(orderId);
-		return order;
-	} catch (e) {
-		throw new Error(
-			`Error obtaining order from getOrderById of transaction controller: ${e.message}`
-		);
-	}
+  try {
+    const order = await Cart.getCartById(orderId);
+    return order;
+  } catch (e) {
+    throw new Error(
+      `Error obtaining order from getOrderById of transaction controller: ${e.message}`
+    );
+  }
 }
 //////////////////////////////////////////////////////////////////////////////
 // export async function getConfirmedPayments(): Promise<Purchase[]> {

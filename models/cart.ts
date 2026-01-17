@@ -12,7 +12,7 @@ export default class Cart extends Model<InferAttributes<Cart>, InferCreationAttr
   declare quantity: number;
   declare status: string;
   declare orderId: string;
-  declare UrlPayment: string | null;
+  declare amount: number | null;
 
   static async createCartId(userId: string) {
     // @ts-ignore
@@ -125,9 +125,9 @@ export default class Cart extends Model<InferAttributes<Cart>, InferCreationAttr
       );
     }
   }
-  static async updatedStatus(cartId: string, status: string) {
+  static async updatedStatus(cartId: string, status: string, amount: number) {
     try {
-      await Cart.update({ status }, { where: { orderId: cartId } });
+      await Cart.update({ status, amount }, { where: { orderId: cartId } });
       return { message: "Status updated" };
     } catch (e) {
       throw new Error(`Error to update status from updatedStatus of model Cart: ${e.message}`);
@@ -146,7 +146,7 @@ Cart.init(
     quantity: DataTypes.INTEGER,
     status: DataTypes.STRING,
     orderId: DataTypes.STRING,
-    UrlPayment: DataTypes.STRING,
+    amount: DataTypes.INTEGER,
   },
   { sequelize, modelName: "cart" }
 );

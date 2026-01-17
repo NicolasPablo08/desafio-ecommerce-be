@@ -12,9 +12,8 @@ export async function POST(request: Request, { params }) {
         // console.log(`Payment ${mpPayment.id} approved`);
         const purchaseId = mpPayment.external_reference;
         // console.log("purchaseId", purchaseId);
-        console.log("mpPayment", mpPayment.transaction_amount);
 
-        await confirmPurchase(purchaseId, mpPayment.status);
+        await confirmPurchase(purchaseId, mpPayment.status, Number(mpPayment.transaction_amount));
       }
     }
 
